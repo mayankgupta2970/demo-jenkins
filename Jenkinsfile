@@ -2,11 +2,11 @@ pipeline {
   agent any
 
   environment {
-    ECR_REGIONS = ['us-east-1', 'us-west-2']
-    ECR_REGISTRY_URL = 'public.ecr.aws/h2r7k9t2'
-    ECR_REPO_NAME = 'ecr-demo-img'
-    DOCKER_IMAGE_NAME = 'ecr-demo-img'
-    DOCKERFILE_PATH = './Dockerfile'
+    ECR_REGIONS = "us-east-1,us-west-2"
+    ECR_REGISTRY_URL = "public.ecr.aws/h2r7k9t2"
+    ECR_REPO_NAME = "ecr-demo-img"
+    DOCKER_IMAGE_NAME = "ecr-demo-img"
+    DOCKERFILE_PATH = "./Dockerfile"
   }
 
   stages {
@@ -27,7 +27,7 @@ pipeline {
     stage('Push Docker Image to ECR') {
       steps {
         script {
-          for (region in env.ECR_REGIONS) {
+          for (region in ECR_REGIONS.split(',')) {
             withAWS(region: region, credentials: 'demo1') {
               sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URL}"
               sh "docker tag ${DOCKER_IMAGE_NAME}:latest ${ECR_REGISTRY_URL}/${ECR_REPO_NAME}:${BUILD_NUMBER}"
@@ -39,3 +39,4 @@ pipeline {
     }
   }
 }
+
